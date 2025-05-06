@@ -1,6 +1,6 @@
-// controllers/order.controller.js
 const Order = require('../models/order.model');
 const Payment = require('../models/payment.model');
+const Student = require('../models/student.model'); // ✅ Needed for refund logic
 
 // Generate a 6-digit random order ID
 const generateOrderId = () => {
@@ -95,11 +95,45 @@ async function updatePaymentStatus(req, res) {
   }
 }
 
+// ✅ Refund 40% to wallet if order paid with Bkash and gets canceled
+async function cancelOrderWithRefund(req, res) {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    // Update order status
+    order.orderStatus = 'canceled';
+    await order.save();
+
+    if (order.paymentMethod === 'Bkash' && order.paymentStatus === 'Paid') {
+      const refundAmount = Math.floor(order.totalPrice * 0.4);
+      const student = await Student.findOne({ customerId: order.customerId });
+
+      if (student) {
+        student.wallet += refundAmount;
+        await student.save();
+        return res.status(200).json({
+          message: 'Order canceled and wallet refunded 40%',
+          walletRefund: refundAmount,
+          wallet: student.wallet
+        });
+      }
+    }
+
+    res.status(200).json({ message: 'Order canceled (no refund needed)' });
+  } catch (err) {
+    res.status(500).json({ message: 'Cancellation failed', error: err.message });
+  }
+}
+
 module.exports = {
   createOrder,
   markOrdersAsDone,
   getOrderHistory,
   getAllOrders,
   updateOrderStatus,
-  updatePaymentStatus
+  updatePaymentStatus,
+  cancelOrderWithRefund // ✅ Exported here
 };

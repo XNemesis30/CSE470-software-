@@ -5,7 +5,8 @@ const {
   getOrderHistory,
   getAllOrders,
   updateOrderStatus,
-  updatePaymentStatus
+  updatePaymentStatus,
+  cancelOrderWithRefund 
 } = require('../controllers/order.controller');
 
 const router = express.Router();
@@ -25,4 +26,5 @@ router.put('/update-status/:orderId', updateOrderStatus);
 // **NEW** Admin: update just the paymentStatus (Unpaid → Paid)
 router.put('/update-payment/:orderId', updatePaymentStatus);
 
+router.put('/cancel-and-refund/:orderId', cancelOrderWithRefund);
 module.exports = router;
