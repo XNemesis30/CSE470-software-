@@ -13,8 +13,18 @@ const paymentSchema = new mongoose.Schema({
     enum: ['Paid', 'Unpaid'],
     default: 'Unpaid'
   },
+  deliveryMethod: {
+    type: String,
+    enum: ['Take-away', 'Home Delivery'],
+    required: true
+  },
+  deliveryCharge: {
+    type: Number,
+    default: 0
+  },
   items: [
     {
+      foodItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem' }, // Optional field
       name: { type: String, required: true },
       price: { type: Number, required: true },
       quantity: { type: Number, required: true }

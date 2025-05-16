@@ -1,15 +1,15 @@
-// ✅ Backend
-// File: models/student.model.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  studentId: { type: String, required: true, unique: true },
+  studentId: { type: String, unique: true, sparse: true }, // Made optional with sparse index
   password: { type: String, required: true },
   customerId: { type: String, unique: true },
-  wallet: { type: Number, default: 0 } // wallet field added
+  wallet: { type: Number, default: 0 },
+  phone: { type: String, required: true }, // Changed to String type
+  address: { type: String, required: true }
 });
 
 studentSchema.pre('save', async function (next) {

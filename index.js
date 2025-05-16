@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 
 const PORT = process.env.PORT || 3001;
+const path = require('path');
 
 // Middleware
 app.use(cors());
@@ -19,6 +20,8 @@ const cartRoute = require('./routes/cart.route');
 const paymentRoute = require('./routes/payment.route');
 const orderRoute = require('./routes/order.route');
 const cancelRoute = require('./routes/cancel.route'); // ✅ Add this if using wallet refund on cancel
+const deliverymanRoutes = require('./routes/deliveryman.route');
+const reviewRoute = require('./routes/review.route'); // ✅ Added review route
 
 // Route registration
 app.use('/api/students', studentRoute);
@@ -28,6 +31,9 @@ app.use('/api/cart', cartRoute);
 app.use('/api/payment', paymentRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/cancel', cancelRoute); // ✅ Register cancel route
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/deliveryman', deliverymanRoutes);
+app.use('/api/reviews', reviewRoute); // ✅ Register review route
 
 // MongoDB connection
 mongoose

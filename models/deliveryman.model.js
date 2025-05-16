@@ -1,19 +1,20 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const adminSchema = new mongoose.Schema({
+const deliverymanSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
   employeeId: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  image: { type: String, required: false }
+  approved: { type: Boolean, default: false },
+  status: { type: String, enum: ['available', 'picking up an order', 'delivering an order'], default: 'available' }
 });
 
-adminSchema.pre('save', async function (next) {
+deliverymanSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-const Admin = mongoose.model('Admin', adminSchema);
-module.exports = Admin;
+module.exports = mongoose.model('Deliveryman', deliverymanSchema);

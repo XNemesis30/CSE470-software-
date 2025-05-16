@@ -3,6 +3,7 @@ const FoodItem = require('../models/fooditem.model');
 // Create a new food item
 const createFoodItem = async (req, res) => {
   const { name, price, category, available, adminId } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const existingItem = await FoodItem.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
@@ -10,7 +11,7 @@ const createFoodItem = async (req, res) => {
       return res.status(400).json({ message: 'Food item is already in the menu.' });
     }
 
-    const newItem = new FoodItem({ name, price, category, available, createdBy: adminId });
+    const newItem = new FoodItem({ name, price, category, available, image, createdBy: adminId });
     await newItem.save();
     res.status(201).json({ message: 'Food item added successfully', item: newItem });
   } catch (err) {
@@ -55,13 +56,13 @@ const deleteFoodItem = async (req, res) => {
 const updateFoodItem = async (req, res) => {
   const { id } = req.params;
   const { name, price, category, available } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
   try {
-    const updated = await FoodItem.findByIdAndUpdate(
-      id,
-      { name, price, category, available },
-      { new: true }
-    );
+    const updatedFields = { name, price, category, available };
+    if (image) updatedFields.image = image;
+
+    const updated = await FoodItem.findByIdAndUpdate(id, updatedFields, { new: true });
     if (!updated) return res.status(404).json({ message: 'Item not found' });
     res.status(200).json({ message: 'Food item updated successfully', item: updated });
   } catch (err) {
